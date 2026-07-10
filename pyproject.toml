@@ -1,0 +1,13 @@
+[project]
+name = "podcast-converter"
+version = "0.1.0"
+description = "Utilities for converting and generating visualizers for podcast audio"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+]
