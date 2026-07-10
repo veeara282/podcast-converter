@@ -1,5 +1,7 @@
 import argparse
 
+from audio import read_audio
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -38,6 +40,8 @@ def main():
     print(f"Image file: {image_file_path or '[none]'}")
     output_file_path = args.output
     print(f"Video will be written to: {output_file_path}")
+
+    read_audio(audio_file_path)
 
 
 if __name__ == "__main__":
