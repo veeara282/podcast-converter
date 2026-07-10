@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument("-o", "--output", help="output video file")
     parser.add_argument("--vc", "--video-codec",
                         help="video encoding to use for the output",
-                        choices=["h264", "av1"],
+                        choices=["h264", "hevc", "vp9", "av1"],
                         default="av1")
     parser.add_argument("--ac", "--audio-codec",
                         help="audio encoding to use for the output",
