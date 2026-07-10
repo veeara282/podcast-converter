@@ -5,6 +5,9 @@ description = "Utilities for converting and generating visualizers for podcast a
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "torch>=2.13.0",
+    "torchaudio>=2.11.0",
+    "torchcodec>=0.14.0",
 ]
 
 [dependency-groups]
