@@ -1,4 +1,6 @@
 import os
+# Need to link the ffmpeg DLL ourselves since Python doesn't use the PATH
+os.add_dll_directory(r"C:\ffmpeg\ffmpeg-n8.1-latest-win64-gpl-shared-8.1\bin")
 
 from torch import nn
 from torchaudio import transforms as tfs
