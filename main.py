@@ -1,4 +1,8 @@
 import argparse
+import logging
+
+# Show info/debug logs (temporary)
+# logging.basicConfig(level=logging.DEBUG)
 
 from audio import read_audio
 

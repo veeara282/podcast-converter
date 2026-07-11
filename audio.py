@@ -1,11 +1,14 @@
 import os
-# Need to link the ffmpeg DLL ourselves since Python doesn't use the PATH
-os.add_dll_directory(r"C:\ffmpeg\ffmpeg-n8.1-latest-win64-gpl-shared-8.1\bin")
+
+# Import this to resolve FFmpeg DLLs, since Python on Windows does not load DLLs
+# automatically. Must come before the torchcodec import.
+import resolve_ffmpeg
+
+resolve_ffmpeg.add_dll_paths()
 
 from torch import nn
 from torchaudio import transforms as tfs
 from torchcodec.decoders import AudioDecoder
-
 
 # pipeline = nn.Sequential(
 #     # Convert to mel scale (perceptual frequency bins)
