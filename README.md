@@ -3,7 +3,8 @@ Utilities for converting and generating visualizers for podcast audio
 
 ## Installation
 
-To install the dependencies and run this program in a virtual environment:
+To install the dependencies and run this program in a virtual environment, run the
+following commands from the _root_ of the repository:
 
 ```bash
 uv venv
