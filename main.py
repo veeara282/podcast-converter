@@ -17,7 +17,7 @@ def parse_args():
         "audio",
         help="input audio or video file (if a video file is provided, only the audio track will be used)",
     )
-    parser.add_argument("bg_image", help="background image file")
+    parser.add_argument("-b", "--bg-image", help="background image file")
     parser.add_argument("-o", "--output", help="output video file")
     parser.add_argument(
         "--vc",
