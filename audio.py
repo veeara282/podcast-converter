@@ -85,6 +85,7 @@ def generate_spectrograms(
         # If true, convert multi-channel audio to mono.
         # The shape of the input tensor is (num_channels, num_samples), so we average
         # along the first dimension.
+        logger.info("Converting audio to mono for spectral analysis...")
         audio_data = torch.mean(audio.data, dim=0, keepdim=True)
     else:
         # Otherwise keep input data as-is
@@ -92,4 +93,9 @@ def generate_spectrograms(
 
     logger.info("Generating spectrograms...")
     pipeline = spectrogram_pipeline(audio, frame_rate, window_length, n_bins)
-    return pipeline.forward(audio_data)
+    spectrograms = pipeline.forward(audio_data)
+    n_frames = spectrograms.size(2)
+    logger.info(
+        f"Generated {n_frames} spectrograms @ {frame_rate} Hz. Total video duration will be {n_frames / frame_rate:.3f} s"
+    )
+    return spectrograms

@@ -33,7 +33,8 @@ def parse_args():
         default="opus",
     )
     parser.add_argument(
-        "-f", "--frame-rate",
+        "-f",
+        "--frame-rate",
         help="the desired video frame rate in Hz. Default: 30",
         type=int,
         default=30,
@@ -56,7 +57,10 @@ def main():
     import audio
 
     audio_samples = audio.read_audio(audio_file_path)
-    spectrograms = audio.generate_spectrograms(audio_samples, frame_rate=args.frame_rate)
+    spectrograms = audio.generate_spectrograms(
+        audio_samples, frame_rate=args.frame_rate
+    )
+    assert spectrograms is not None
 
 
 if __name__ == "__main__":
