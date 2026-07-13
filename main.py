@@ -2,7 +2,8 @@ import argparse
 import logging
 
 # Show info/debug logs (temporary)
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 
 def parse_args():
@@ -31,6 +32,12 @@ def parse_args():
         choices=["aac", "opus"],
         default="opus",
     )
+    parser.add_argument(
+        "-f", "--frame-rate",
+        help="the desired video frame rate in Hz. Default: 30",
+        type=int,
+        default=30,
+    )
     return parser.parse_args()
 
 
@@ -38,16 +45,18 @@ def main():
     args = parse_args()
     audio_file_path = args.audio
     image_file_path = args.bg_image
-    print(f"Audio file: {audio_file_path or '[none]'}")
-    print(f"Image file: {image_file_path or '[none]'}")
+    logger.info(f"Audio file: {audio_file_path or '[none]'}")
+    logger.info(f"Image file: {image_file_path or '[none]'}")
     output_file_path = args.output
-    print(f"Video will be written to: {output_file_path}")
+    logger.info(f"Video will be written to: {output_file_path}")
 
     # Lazy import: module has a lot of dependencies (PyTorch and FFmpeg DLLs), so only
     # import when needed to avoid blocking argparse
-    from audio import read_audio
+    logger.info("Loading dependencies...")
+    import audio
 
-    read_audio(audio_file_path)
+    audio_samples = audio.read_audio(audio_file_path)
+    spectrograms = audio.generate_spectrograms(audio_samples, frame_rate=args.frame_rate)
 
 
 if __name__ == "__main__":

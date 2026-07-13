@@ -18,18 +18,18 @@ logger = logging.getLogger()
 
 def read_audio(source: str) -> AudioSamples:
     if os.path.exists(source):
-        print(f"Reading audio from source: {source}")
+        logger.info(f"Reading audio from source: {source}")
         decoder = AudioDecoder(source)
         audio = decoder.get_all_samples()
-        print(f"Duration: {audio.duration_seconds} seconds")
-        print(f"Sample rate: {audio.sample_rate} Hz")
+        logger.info(f"Duration: {audio.duration_seconds} seconds")
+        logger.info(f"Sample rate: {audio.sample_rate} Hz")
         num_channels = audio.data.size(0)
         if num_channels == 1:
-            print("Mono audio detected (number of channels: 1)")
+            logger.info("Mono audio detected (number of channels: 1)")
         elif num_channels == 2:
-            print("Stereo audio detected (number of channels: 2)")
+            logger.info("Stereo audio detected (number of channels: 2)")
         else:
-            print(f"Number of channels: {audio.data.size(0)}")
+            logger.info(f"Number of channels: {audio.data.size(0)}")
         return audio
     else:
         raise FileNotFoundError(source)
@@ -90,5 +90,6 @@ def generate_spectrograms(
         # Otherwise keep input data as-is
         audio_data = audio.data
 
+    logger.info("Generating spectrograms...")
     pipeline = spectrogram_pipeline(audio, frame_rate, window_length, n_bins)
     return pipeline.forward(audio_data)
