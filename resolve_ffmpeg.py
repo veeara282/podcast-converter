@@ -7,7 +7,7 @@ import re
 logger = logging.getLogger(__name__)
 
 
-_REGISTERED_PATHS: set[str] = set()
+_CHECKED_PATHS: set[str] = set()
 
 # Compile this regex once - it matches all the filenames, will be used each time
 # _looks_like_ffmpeg_dir() is called
@@ -48,11 +48,11 @@ def add_dll_paths():
         for path in paths_to_check:
             # If path is already registered, avoid checking it again
             normalized_path = str(Path(path).resolve()).lower()
-            if normalized_path not in _REGISTERED_PATHS:
+            if normalized_path not in _CHECKED_PATHS:
                 logger.debug(f"Checking path {path}...")
                 if _looks_like_ffmpeg_dir(path):
                     os.add_dll_directory(path)
-                    _REGISTERED_PATHS.add(normalized_path)
                     logger.debug(f"Added DLL directory: {path}")
+                _CHECKED_PATHS.add(normalized_path)
             else:
                 logger.debug(f"Path {path} already checked. Skipping.")
