@@ -13,6 +13,7 @@ import numpy as np
 import torch
 from torchcodec import AudioSamples
 from torchcodec.encoders import Encoder
+from tqdm import tqdm
 
 logger = logging.getLogger()
 
@@ -44,7 +45,7 @@ def export_video(
     )
     with encoder.open_file(dest):
         audio_stream.add_samples(audio.data)
-        for frame in video_frames:
+        for frame in tqdm(video_frames, desc="Drawing frames"):
             logger.debug(f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}")
             tensor_frame = np_to_torchcodec_format(frame)
             logger.debug(f"Tensor frame shape: {tensor_frame.shape}")

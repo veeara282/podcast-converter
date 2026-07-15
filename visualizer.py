@@ -36,10 +36,10 @@ def draw_frame(spectrograms: Tensor, t: int) -> np.ndarray:
         leftmost = 27
         for i in range(n_mels):
             db = spectrograms[0, i, t]
-            bar_height = max(0, db + 120) * 5
+            bar_height = max(0, db + 80) * 8
             x_left = leftmost + i * (bar_width + gap_width)
             x_right = x_left + bar_width
-            y_bottom = 720
+            y_bottom = 960
             y_top = y_bottom - bar_height
             rect = skia.Rect.MakeLTRB(x_left, y_top, x_right, y_bottom)
             canvas.drawRect(rect, paint)
@@ -51,5 +51,5 @@ def draw_frames(spectrograms: Tensor):
     # Use a generator to draw frames so we can stream them to the video encoder.
     n_frames = spectrograms.size(2)
     for t in range(n_frames):
-        logger.info(f"Drawing frame {t} of {n_frames}...")
+        logger.debug(f"Drawing frame {t} of {n_frames}...")
         yield draw_frame(spectrograms, t)
