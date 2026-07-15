@@ -51,5 +51,5 @@ def draw_frames(spectrograms: Tensor):
     # Use a generator to draw frames so we can stream them to the video encoder.
     n_frames = spectrograms.size(2)
     for t in range(n_frames):
-        logger.info(f"Drawing frame {t}...")
+        logger.info(f"Drawing frame {t} of {n_frames}...")
         yield draw_frame(spectrograms, t)

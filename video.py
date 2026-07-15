@@ -26,14 +26,15 @@ def np_to_torchcodec_format(frame: np.ndarray) -> torch.Tensor:
     Returns: a torch.Tensor of size (1, c, w, h)
     """
     # Transpose (w, h, c) -> (c, w, h), then add new dimension
-    reshaped = np.transpose(frame, (2, 0, 1))[np.newaxis, ...]
+    # Also drop alpha channel (comes first)
+    reshaped = np.transpose(frame, (2, 0, 1))[np.newaxis, 1:4, ...]
     return torch.from_numpy(reshaped)
 
 
 def export_video(
     dest: str,
     audio: AudioSamples,
-    video_data: Generator[np.ndarray],
+    video_frames: Generator[np.ndarray],
     frame_rate: int = 30,
 ):
     encoder = Encoder()
@@ -43,5 +44,8 @@ def export_video(
     )
     with encoder.open_file(dest):
         audio_stream.add_samples(audio.data)
-        for frame in video_data:
-            pass
+        for frame in video_frames:
+            logger.debug(f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}")
+            tensor_frame = np_to_torchcodec_format(frame)
+            logger.debug(f"Tensor frame shape: {tensor_frame.shape}")
+            video_stream.add_frames(tensor_frame)
