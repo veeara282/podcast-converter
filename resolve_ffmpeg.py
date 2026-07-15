@@ -26,7 +26,12 @@ def _looks_like_ffmpeg_dir(path: str) -> bool:
         try:
             filenames = [file.name.lower() for file in path_obj.iterdir()]
             logger.debug(f"Files found within directory: {filenames}")
-            return any(_DLL_PATTERN.match(fn) for fn in filenames)
+            if any(_DLL_PATTERN.match(fn) for fn in filenames):
+                logger.debug("Matching DLLs found.")
+                return True
+            else:
+                logger.debug("No matching DLLs found.")
+                return False
         except OSError:
             return False
 
@@ -44,7 +49,10 @@ def add_dll_paths():
             # If path is already registered, avoid checking it again
             normalized_path = str(Path(path).resolve()).lower()
             if normalized_path not in _REGISTERED_PATHS:
+                logger.debug(f"Checking path {path}...")
                 if _looks_like_ffmpeg_dir(path):
                     os.add_dll_directory(path)
                     _REGISTERED_PATHS.add(normalized_path)
                     logger.debug(f"Added DLL directory: {path}")
+            else:
+                logger.debug(f"Path {path} already checked. Skipping.")

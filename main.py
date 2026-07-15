@@ -2,8 +2,11 @@ import argparse
 import logging
 
 # Show info/debug logs (temporary)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
+
+import video as vd
+import visualizer
 
 
 def parse_args():
@@ -60,7 +63,12 @@ def main():
     spectrograms = audio.generate_spectrograms(
         audio_samples, frame_rate=args.frame_rate
     )
-    assert spectrograms is not None
+
+    video = visualizer.draw_frames(spectrograms)
+    frame = next(video)
+    logger.info(f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}")
+    tensor_frame = vd.np_to_torchcodec_format(frame)
+    logger.info(f"Tensor frame shape: {tensor_frame.shape}")
 
 
 if __name__ == "__main__":

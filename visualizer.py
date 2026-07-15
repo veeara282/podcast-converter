@@ -1,5 +1,10 @@
+import logging
+
+import numpy as np
 import skia
 from torch import Tensor
+
+logger = logging.getLogger()
 
 
 def draw_background(surface: skia.Surface) -> None:
@@ -12,7 +17,7 @@ def draw_background(surface: skia.Surface) -> None:
         canvas.drawRect(rect_bg, paint_bg)
 
 
-def draw_frame(spectrograms: Tensor, t: int) -> skia.Image:
+def draw_frame(spectrograms: Tensor, t: int) -> np.ndarray:
     surface = skia.Surface(1080, 1080)
     # First draw the background
     draw_background(surface)
@@ -38,12 +43,13 @@ def draw_frame(spectrograms: Tensor, t: int) -> skia.Image:
             y_top = y_bottom - bar_height
             rect = skia.Rect.MakeLTRB(x_left, y_top, x_right, y_bottom)
             canvas.drawRect(rect, paint)
-    
-    return surface.makeImageSnapshot()
+
+    return surface.makeImageSnapshot().toarray()
 
 
 def draw_frames(spectrograms: Tensor):
     # Use a generator to draw frames so we can stream them to the video encoder.
     n_frames = spectrograms.size(2)
     for t in range(n_frames):
+        logger.info(f"Drawing frame {t}...")
         yield draw_frame(spectrograms, t)
