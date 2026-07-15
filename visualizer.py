@@ -49,9 +49,14 @@ def draw_frame(bar_heights: Tensor, t: int) -> np.ndarray:
 
 def spectrograms_to_bar_heights(spectrograms: Tensor, max_height=720) -> Tensor:
     # No need to clip the dynamic range - AmplitudeToDB already clips it to [-100, 0] dB
-    # Normalize the dynamic range [min_db, 0] -> [0, 1]
-    db_range = -torch.amin(spectrograms)
-    normalized = spectrograms / db_range + 1
+    # Normalize the dynamic range [db_min, db_max] -> [0, 1].
+    # Important because db_max can go above 0 dB.
+    db_min, db_max = torch.aminmax(spectrograms)
+    logger.info(f"Audio min/max dB: {db_min:.3f}, {db_max:.3f}")
+    db_range = db_max - db_min
+    normalized = (spectrograms - db_max) / db_range + 1
+    # norm_min, norm_max = torch.aminmax(normalized)
+    # logger.debug(f"Normalized min/max dB: {norm_min:.3f}, {norm_max:.3f}")
     return normalized * max_height
 
 
