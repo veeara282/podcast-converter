@@ -42,7 +42,13 @@ def export_video(
     encoder = Encoder()
     video_stream = encoder.add_video(width=1080, height=1080, frame_rate=frame_rate)
     audio_stream = encoder.add_audio(
-        sample_rate=audio.sample_rate, num_channels=audio.data.size(0)
+        sample_rate=audio.sample_rate,
+        num_channels=audio.data.size(0),
+        # If WebM file type is selected, FFmpeg will use the Opus audio codec.
+        # Since Opus requires specific sample rates (48000, 24000, etc.), input audio
+        # with an arbitrary sample rate (e.g. 44100 Hz) must be upsampled to 48000 Hz.
+        # TorchCodec throws a RuntimeError instead of doing this automatically.
+        out_sample_rate=48000 if dest.endswith(".webm") else None,
     )
     with encoder.open_file(dest):
         audio_stream.add_samples(audio.data)
