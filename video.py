@@ -40,7 +40,11 @@ def export_video(
     n_frames: int = 1000,
 ):
     encoder = Encoder()
-    video_stream = encoder.add_video(width=1080, height=1080, frame_rate=frame_rate)
+    # Use MediaFoundation codec where available - it delegates hardware acceleration
+    # to Windows. Not available on non-Windows platforms, though.
+    video_stream = encoder.add_video(
+        width=1080, height=1080, frame_rate=frame_rate, codec="h264_mf"
+    )
     audio_stream = encoder.add_audio(
         sample_rate=audio.sample_rate, num_channels=audio.data.size(0)
     )
