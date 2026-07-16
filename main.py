@@ -63,10 +63,13 @@ def main():
     spectrograms = audio.generate_spectrograms(
         audio_samples, frame_rate=args.frame_rate
     )
+    n_frames = spectrograms.size(2)
 
     if args.output:
         video_frames = visualizer.draw_frames(spectrograms)
-        vd.export_video(args.output, audio_samples, video_frames, args.frame_rate)
+        vd.export_video(
+            args.output, audio_samples, video_frames, args.frame_rate, n_frames
+        )
 
 
 if __name__ == "__main__":

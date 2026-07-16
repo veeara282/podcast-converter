@@ -20,7 +20,7 @@ logger = logging.getLogger()
 
 def np_to_torchcodec_format(frame: np.ndarray) -> torch.Tensor:
     """Converts an image exported from Skia into the format expected by the torchcodec Encoder.
-    
+
     Parameters:
     frame: an np.ndarray of size (w, h, c)
 
@@ -37,6 +37,7 @@ def export_video(
     audio: AudioSamples,
     video_frames: Generator[np.ndarray],
     frame_rate: int = 30,
+    n_frames: int = 1000,
 ):
     encoder = Encoder()
     video_stream = encoder.add_video(width=1080, height=1080, frame_rate=frame_rate)
@@ -45,8 +46,10 @@ def export_video(
     )
     with encoder.open_file(dest):
         audio_stream.add_samples(audio.data)
-        for frame in tqdm(video_frames, desc="Drawing frames"):
-            logger.debug(f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}")
+        for frame in tqdm(video_frames, desc="Drawing frames", total=n_frames):
+            logger.debug(
+                f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}"
+            )
             tensor_frame = np_to_torchcodec_format(frame)
             logger.debug(f"Tensor frame shape: {tensor_frame.shape}")
             video_stream.add_frames(tensor_frame)
