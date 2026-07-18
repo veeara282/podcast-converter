@@ -62,6 +62,7 @@ def glfw_context(width: int = 1080, height: int = 1080):
     glfw.terminate()
     logger.info("glfw_context: glfw.terminate() returned.")
 
+
 def draw_background(surface: skia.Surface) -> None:
     with surface as canvas:
         paint_bg = skia.Paint(
@@ -133,10 +134,14 @@ def draw_frames(spectrograms: Tensor, width: int = 1080, height: int = 1080):
         info = skia.ImageInfo.MakeN32Premul(width, height)
         surface = skia.Surface.MakeRenderTarget(context, skia.Budgeted.kYes, info)
         if surface is None:
-            logger.warning("Failed to create OpenGL rendering surface. Falling back to CPU rendering.")
+            logger.warning(
+                "Failed to create OpenGL rendering surface. Falling back to CPU rendering."
+            )
         for t in range(n_frames):
             logger.debug(f"Drawing frame {t} of {n_frames}...")
-            frame = draw_frame(bar_heights, t, width=width, height=height, surface=surface)
+            frame = draw_frame(
+                bar_heights, t, width=width, height=height, surface=surface
+            )
             context.flushAndSubmit()
             glfw.poll_events()
             yield frame
