@@ -58,8 +58,9 @@ def glfw_context(width: int = 1080, height: int = 1080):
     window = glfw.create_window(width, height, "", None, None)
     glfw.make_context_current(window)
     yield window
+    logger.info("glfw_context: about to call glfw.terminate()...")
     glfw.terminate()
-
+    logger.info("glfw_context: glfw.terminate() returned.")
 
 def draw_background(surface: skia.Surface) -> None:
     with surface as canvas:
@@ -137,4 +138,11 @@ def draw_frames(spectrograms: Tensor, width: int = 1080, height: int = 1080):
             logger.debug(f"Drawing frame {t} of {n_frames}...")
             frame = draw_frame(bar_heights, t, width=width, height=height, surface=surface)
             context.flushAndSubmit()
+            glfw.poll_events()
             yield frame
+        # Release Skia's GPU-backed objects now, while the GL context is still
+        # current — glfw.terminate() (below, on with-exit) invalidates the context,
+        # and Skia's destructors need a live context to release GPU resources cleanly.
+        del surface
+        del context
+    # glfw.terminate() runs here, with no dangling GPU objects left to clean up

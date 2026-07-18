@@ -1,6 +1,5 @@
 import logging
-
-# import os
+import time
 from typing import Generator
 
 # Import this to resolve FFmpeg DLLs, since Python on Windows does not load DLLs
@@ -58,6 +57,11 @@ def export_video(
             logger.debug(
                 f"Generated frame: ndarray of shape={frame.shape}, dtype={frame.dtype}"
             )
+            t0 = time.perf_counter()
             tensor_frame = np_to_torchcodec_format(frame)
-            logger.debug(f"Tensor frame shape: {tensor_frame.shape}")
+            logger.debug(f"convert: {time.perf_counter()-t0:.4f}s")
+            t0 = time.perf_counter()
             video_stream.add_frames(tensor_frame)
+            logger.debug(f"encode: {time.perf_counter()-t0:.4f}s")
+        logger.info("Loop finished, awaiting generator cleanup...")
+    logger.info("encoder.open_file() context exited, muxing complete.")
