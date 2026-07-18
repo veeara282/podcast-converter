@@ -2,7 +2,11 @@ import argparse
 import logging
 
 # Show info/debug logs (temporary)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.INFO,
+)
 logger = logging.getLogger()
 
 import video as vd
@@ -74,7 +78,9 @@ def main():
     n_frames = spectrograms.size(2)
 
     if args.output:
-        video_frames = visualizer.draw_frames(spectrograms, width=args.width, height=args.height)
+        video_frames = visualizer.draw_frames(
+            spectrograms, width=args.width, height=args.height
+        )
         vd.export_video(
             args.output, audio_samples, video_frames, args.frame_rate, n_frames
         )
