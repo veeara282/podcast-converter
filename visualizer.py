@@ -18,8 +18,10 @@ def draw_background(surface: skia.Surface) -> None:
         canvas.drawRect(rect_bg, paint_bg)
 
 
-def draw_frame(bar_heights: Tensor, t: int) -> np.ndarray:
-    surface = skia.Surface(1080, 1080)
+def draw_frame(
+    bar_heights: Tensor, t: int, width: int = 1080, height: int = 1080
+) -> np.ndarray:
+    surface = skia.Surface(width, height)
     # First draw the background
     draw_background(surface)
 
@@ -60,10 +62,10 @@ def spectrograms_to_bar_heights(spectrograms: Tensor, max_height=720) -> Tensor:
     return normalized * max_height
 
 
-def draw_frames(spectrograms: Tensor):
+def draw_frames(spectrograms: Tensor, width: int = 1080, height: int = 1080):
     bar_heights = spectrograms_to_bar_heights(spectrograms)
     # Use a generator to draw frames so we can stream them to the video encoder.
     n_frames = spectrograms.size(2)
     for t in range(n_frames):
         logger.debug(f"Drawing frame {t} of {n_frames}...")
-        yield draw_frame(bar_heights, t)
+        yield draw_frame(bar_heights, t, width, height)

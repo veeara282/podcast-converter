@@ -38,9 +38,11 @@ def export_video(
     video_frames: Generator[np.ndarray],
     frame_rate: int = 30,
     n_frames: int = 1000,
+    width: int = 1080,
+    height: int = 1080,
 ):
     encoder = Encoder()
-    video_stream = encoder.add_video(width=1080, height=1080, frame_rate=frame_rate)
+    video_stream = encoder.add_video(width=width, height=height, frame_rate=frame_rate)
     audio_stream = encoder.add_audio(
         sample_rate=audio.sample_rate,
         num_channels=audio.data.size(0),

@@ -27,7 +27,15 @@ def parse_args():
         type=int,
         default=30,
     )
-    parser.add_argument("-b", "--bg-image", help="background image file (currently unused)")
+    parser.add_argument(
+        "-w", "--width", help="video width in pixels", type=int, default=1080
+    )
+    parser.add_argument(
+        "-y", "--height", help="video height in pixels", type=int, default=1080
+    )
+    parser.add_argument(
+        "-b", "--bg-image", help="background image file (currently unused)"
+    )
     parser.add_argument(
         "--vc",
         "--video-codec",
@@ -66,7 +74,7 @@ def main():
     n_frames = spectrograms.size(2)
 
     if args.output:
-        video_frames = visualizer.draw_frames(spectrograms)
+        video_frames = visualizer.draw_frames(spectrograms, width=args.width, height=args.height)
         vd.export_video(
             args.output, audio_samples, video_frames, args.frame_rate, n_frames
         )
