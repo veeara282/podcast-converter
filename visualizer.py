@@ -100,7 +100,7 @@ def draw_frame(
         gap_width = 4
         leftmost = 27
         for i in range(n_mels):
-            bar_height = bar_heights[0, i, t]
+            bar_height = bar_heights[0, i, t].item()
             x_left = leftmost + i * (bar_width + gap_width)
             x_right = x_left + bar_width
             y_bottom = 900
@@ -125,7 +125,8 @@ def spectrograms_to_bar_heights(spectrograms: Tensor, max_height=720) -> Tensor:
 
 
 def draw_frames(spectrograms: Tensor, width: int = 1080, height: int = 1080):
-    bar_heights = spectrograms_to_bar_heights(spectrograms)
+    # Make sure this Tensor is on the CPU for quicker random access
+    bar_heights = spectrograms_to_bar_heights(spectrograms).cpu()
     # Use a generator to draw frames so we can stream them to the video encoder.
     n_frames = spectrograms.size(2)
     with glfw_context():
