@@ -12,10 +12,15 @@ following command:
 python ./main.py ./examples/Wikipedia_Chanukah.flac -f 30 -o wikipedia_chanukah.mp4
 ```
 
-- First positional argument: the input file. Can be any file format supported by FFmpeg.
-- `-f`: the frame rate, in frames per second (hertz). A frame rate that evenly divides
+- First positional argument: the input file (e.g. `./examples/Wikipedia_Chanukah.flac`).
+  Can be any file format supported by FFmpeg.
+- `-f`: the frame rate in frames per second (hertz). A frame rate that evenly divides
   the audio sample rate is recommended. Common frame rates include 24, 30 and 60 fps.
 - `-o`: the output video file. Can be any file format supported by FFmpeg.
+
+A few freely licensed music and podcast files are provided in the `examples/` folder.
+You can also use your own audio as long as you own the copyright or have permission to
+do so.
 
 ## Installation
 
