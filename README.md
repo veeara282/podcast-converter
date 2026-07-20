@@ -1,5 +1,21 @@
 # podcast-converter
-Utilities for converting and generating visualizers for podcast audio
+
+This is a program that generates a visualizer video from a given audio file, such as
+music or podcasts.
+
+## Usage and examples
+
+Once the virtual environment and dependencies are installed (see below), run the
+following command:
+
+```bash
+python ./main.py ./examples/Wikipedia_Chanukah.flac -f 30 -o wikipedia_chanukah.mp4
+```
+
+- First positional argument: the input file. Can be any file format supported by FFmpeg.
+- `-f`: the frame rate, in frames per second (hertz). A frame rate that evenly divides
+  the audio sample rate is recommended. Common frame rates include 24, 30 and 60 fps.
+- `-o`: the output video file. Can be any file format supported by FFmpeg.
 
 ## Installation
 
