@@ -3,6 +3,13 @@
 This is a program that generates a visualizer video from a given audio file, such as
 music or podcasts.
 
+This software makes heavy use of [PyTorch](https://pytorch.org/) and
+[Torchaudio](https://docs.pytorch.org/audio/stable/torchaudio.html) for digital signal
+processing, and [skia-python](https://skia-python.github.io/skia-python/) for 2D image
+rendering with OpenGL. A major goal for future development is to support
+hardware-accelerated audio analysis on non-NVIDIA GPUs such as AMD, Intel, and Qualcomm
+using a Vulkan or OpenCL backend (see pytorch/pytorch#160230).
+
 ## Usage and examples
 
 Once the virtual environment and dependencies are installed (see below), run the
