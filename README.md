@@ -77,3 +77,15 @@ of the FFmpeg shared libraries. This is necessary because Python >3.8 doesn't ch
 PATH for DLLs to load (see https://github.com/python/cpython/issues/80266 for more info).
 On Unix-like operating systems, Python will find the FFmpeg `.so` shared libraries
 automatically.
+
+## Authorship statement
+
+This software is substantially my own authorship, with some AI assistance: Claude mainly
+contributed feedback, brainstorming help, and moral support. Claude also contributed
+some original expression, including bug fixes to the GPU resource management code in
+`visualizer.py` (I wrote the rendering logic itself), as well as a rough draft of
+`resolve_ffmpeg.py` that I thoroughly rewrote.
+
+Portions of `visualizer.py` are adapted from boilerplate code from the skia-python docs,
+which is licensed under BSD-3-Clause. See `pyproject.toml` for a list of libraries used
+in this program.

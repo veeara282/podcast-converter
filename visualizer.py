@@ -11,7 +11,8 @@ from torch import Tensor
 logger = logging.getLogger()
 
 """
-Code adapted from https://skia-python.github.io/skia-python/tutorial/canvas.html#gpu
+Portions of this module are adapted from example code on this web page:
+https://skia-python.github.io/skia-python/tutorial/canvas.html#gpu
 
 skia-python docs: Copyright (c) 2020, Kota Yamaguchi
 All rights reserved.
