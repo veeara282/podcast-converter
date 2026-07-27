@@ -27,7 +27,9 @@ python ./main.py ./examples/Wikipedia_Chanukah.flac -f 30 -o wikipedia_chanukah.
 
 The output will look something like this:
 
-<video width="240" height="240" src="https://github.com/user-attachments/assets/e7c7605b-1c30-4cc2-a230-2acd709ec075"></video>
+<video src="https://github.com/user-attachments/assets/e7c7605b-1c30-4cc2-a230-2acd709ec075"></video>
+
+(Music licensed under CC BY-SA 3.0. See [examples/README.md](examples/README.md) for details.)
 
 A few freely licensed music and podcast files are provided in the `examples/` folder.
 You can also use your own audio as long as you own the copyright or have permission to
