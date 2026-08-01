@@ -3,14 +3,11 @@ import logging
 
 # Show info/debug logs (temporary)
 logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s.%(msecs)03d - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     level=logging.INFO,
 )
 logger = logging.getLogger()
-
-import video as vd
-import visualizer
 
 
 def parse_args():
@@ -68,8 +65,10 @@ def main():
 
     # Lazy import: module has a lot of dependencies (PyTorch and FFmpeg DLLs), so only
     # import when needed to avoid blocking argparse
-    logger.info("Loading dependencies...")
+    logger.info("Loading dependencies (PyTorch and FFmpeg)...")
     import audio
+    import video as vd
+    import visualizer
 
     audio_samples = audio.read_audio(audio_file_path)
     spectrograms = audio.generate_spectrograms(
