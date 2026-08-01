@@ -65,7 +65,7 @@ def main():
 
     # Lazy import: module has a lot of dependencies (PyTorch and FFmpeg DLLs), so only
     # import when needed to avoid blocking argparse
-    logger.info("Loading dependencies...")
+    logger.info("Loading dependencies (PyTorch and FFmpeg)...")
     import audio
     import video as vd
     import visualizer
