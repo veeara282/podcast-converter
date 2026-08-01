@@ -9,9 +9,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-import video as vd
-import visualizer
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -70,6 +67,8 @@ def main():
     # import when needed to avoid blocking argparse
     logger.info("Loading dependencies...")
     import audio
+    import video as vd
+    import visualizer
 
     audio_samples = audio.read_audio(audio_file_path)
     spectrograms = audio.generate_spectrograms(
