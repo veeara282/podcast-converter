@@ -223,3 +223,6 @@ __marimo__/
 # Generated video files
 *.mp4
 *.webm
+
+# Custom wheel for PyTorch OpenCL: https://github.com/artyom-beilis/pytorch_dlprim/releases/tag/0.2.0
+pytorch_ocl-0.2.0+torch2.6-cp313-none-win_amd64.whl
