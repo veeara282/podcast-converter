@@ -27,3 +27,7 @@ from the album _One Christmas at a Time_, by Jonathan Coulton and John Roderick.
 
 Based on the Wikipedia article ["Hanukkah", revision 331175247](https://en.wikipedia.org/w/index.php?title=Hanukkah&diff=prev&oldid=331175247),
 licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+
+Example video output:
+
+<video src="https://github.com/user-attachments/assets/e7c7605b-1c30-4cc2-a230-2acd709ec075"></video>
