@@ -158,7 +158,7 @@ env.bak/
 venv.bak/
 
 # Custom environments
-.venv_opencl
+.venv_*
 
 # Spyder project settings
 .spyderproject
