@@ -9,7 +9,7 @@ struct Args {
 
     /// output video file
     #[arg(short, long)]
-    output: String,
+    output: Option<String>,
 
     /// the desired video frame rate in Hz
     #[arg(short, long, default_value_t = 30)]
@@ -20,7 +20,7 @@ struct Args {
     width: u16,
 
     /// video height in pixels
-    #[arg(short='y', long, default_value_t = 1080)]
+    #[arg(short = 'y', long, default_value_t = 1080)]
     height: u16,
 }
 
@@ -30,5 +30,8 @@ fn main() {
     println!("Audio file: {}", args.audio);
     println!("Frame rate: {}", args.frame_rate);
     println!("Dimensions: {} x {}", args.width, args.height);
-    println!("Video will be written to: {}", args.output);
+    println!(
+        "Video will be written to: {}",
+        args.output.unwrap_or("[none]".to_string())
+    );
 }
