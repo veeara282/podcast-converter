@@ -5,7 +5,6 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 struct Args {
     /// input audio or video file (if a video file is provided, only the audio track will be used)
-    #[arg(short, long)]
     audio: String,
 
     /// output video file
