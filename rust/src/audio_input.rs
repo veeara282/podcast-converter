@@ -1,4 +1,5 @@
 use std::path::Path;
+use symphonia::core::audio::AudioSpec;
 use symphonia::core::codecs::CodecParameters;
 use symphonia::core::codecs::audio::AudioDecoderOptions;
 use symphonia::core::formats::probe::Hint;
@@ -13,19 +14,28 @@ pub struct AudioTrack {
 
 #[derive(Debug, Clone)]
 pub struct DecodedAudio {
-    pub sample_rate: Option<u32>,
-    pub channels: Option<symphonia::core::audio::Channels>,
     pub samples: Vec<f32>,
+    pub audio_spec: AudioSpec,
     // true if the track was mixed to mono during decoding
     pub pre_mixed: bool,
+}
+
+impl DecodedAudio {
+    pub fn sample_rate(&self) -> u32 {
+        self.audio_spec.rate()
+    }
+
+    pub fn channel_count(&self) -> usize {
+        self.audio_spec.channels().count()
+    }
 }
 
 /// Mixes interleaved samples to mono by averaging every audio frame.
 pub fn mix_samples_to_mono(
     samples: &[f32],
-    channels: Option<&symphonia::core::audio::Channels>,
+    channels: &symphonia::core::audio::Channels,
 ) -> Vec<f32> {
-    let channel_count = channels.map_or(1, |channels| channels.count());
+    let channel_count = channels.count();
 
     if channel_count <= 1 {
         return samples.to_vec();
@@ -50,6 +60,10 @@ pub enum AudioTrackError {
     NoAudioTrack,
     #[error(transparent)]
     Symphonia(#[from] symphonia::core::errors::Error),
+    #[error("audio spec is inconsistent between frames in this track")]
+    AudioSpecChanged,
+    #[error("empty audio track")]
+    EmptyAudioTrack,
 }
 
 /// Reads the audio track in the file specified by `path` without decoding it.
@@ -93,13 +107,12 @@ pub fn decode_audio_track(
         })
         .ok_or(AudioTrackError::NoAudioTrack)?;
 
-    let sample_rate = codec_params.sample_rate;
-    let channels = codec_params.channels.clone();
-
     let mut decoder = symphonia::default::get_codecs()
         .make_audio_decoder(&codec_params, &AudioDecoderOptions::default())?;
 
     let mut combined_samples: Vec<f32> = Vec::new();
+
+    let mut maybe_audio_spec: Option<AudioSpec> = None;
 
     while let Some(packet) = audio_track.format.next_packet()? {
         if packet.track_id != track_id {
@@ -107,20 +120,35 @@ pub fn decode_audio_track(
         }
 
         let decoded = decoder.decode(&packet)?;
+
+        let cur_spec: &AudioSpec = decoded.spec();
+
+        // decoded.spec() shouldn't change between frames in the same file, but handle it
+        // in case it does
+        match &maybe_audio_spec {
+            Some(prev_spec) if prev_spec != cur_spec => {
+                return Err(AudioTrackError::AudioSpecChanged);
+            }
+            None => maybe_audio_spec = Some(cur_spec.clone()), // clone happens exactly once
+            _ => {}
+        }
+
         let mut packet_samples: Vec<f32> = Vec::new();
         decoded.copy_to_vec_interleaved(&mut packet_samples);
 
         if mix_to_mono {
-            packet_samples = mix_samples_to_mono(&packet_samples, channels.as_ref());
+            packet_samples = mix_samples_to_mono(&packet_samples, cur_spec.channels());
         }
 
         combined_samples.extend(packet_samples);
     }
 
-    Ok(DecodedAudio {
-        sample_rate,
-        channels,
-        samples: combined_samples,
-        pre_mixed: mix_to_mono,
-    })
+    match maybe_audio_spec {
+        Some(spec) => Ok(DecodedAudio {
+            samples: combined_samples,
+            audio_spec: spec,
+            pre_mixed: mix_to_mono,
+        }),
+        None => Err(AudioTrackError::EmptyAudioTrack),
+    }
 }
