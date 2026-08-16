@@ -38,6 +38,6 @@ fn main() -> Result<(), audio_input::AudioTrackError> {
     );
 
     let audio_track = audio_input::read_audio_track(args.audio)?;
-    audio_input::decode_audio_track(audio_track)?;
+    let _samples = audio_input::decode_audio_track(audio_track)?;
     Ok(())
 }

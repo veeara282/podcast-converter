@@ -1,5 +1,4 @@
 use std::path::Path;
-use symphonia::core::audio::GenericAudioBufferRef;
 use symphonia::core::codecs::CodecParameters;
 use symphonia::core::codecs::audio::AudioDecoderOptions;
 use symphonia::core::formats::probe::Hint;
@@ -10,6 +9,14 @@ use symphonia::core::meta::MetadataOptions;
 pub struct AudioTrack {
     pub format: Box<dyn FormatReader>,
     pub track_id: u32,
+}
+
+
+#[derive(Debug, Clone)]
+pub struct DecodedAudio {
+    pub sample_rate: Option<u32>,
+    pub channels: Option<symphonia::core::audio::Channels>,
+    pub samples: Vec<f32>,
 }
 
 
@@ -46,8 +53,9 @@ pub fn read_audio_track(path: impl AsRef<Path>) -> Result<AudioTrack, AudioTrack
 }
 
 
-/// Decodes the audio track identified by the struct `audio_track`.
-pub fn decode_audio_track(audio_track: AudioTrack) -> Result<(), AudioTrackError> {
+/// Decodes the audio track identified by the struct `audio_track` and returns a single
+/// interleaved audio stream.
+pub fn decode_audio_track(audio_track: AudioTrack) -> Result<DecodedAudio, AudioTrackError> {
     let AudioTrack { mut format, track_id } = audio_track;
 
     let codec_params = format
@@ -61,15 +69,32 @@ pub fn decode_audio_track(audio_track: AudioTrack) -> Result<(), AudioTrackError
         })
         .ok_or(AudioTrackError::NoAudioTrack)?;
 
+    // Move these values out of codec_params to avoid double-borrowing format
+    let sample_rate = codec_params.sample_rate;
+    let channels = codec_params.channels.clone();
+
     let mut decoder = symphonia::default::get_codecs()
         .make_audio_decoder(codec_params, &AudioDecoderOptions::default())?;
+
+    let mut combined_samples: Vec<f32> = Vec::new();
 
     while let Some(packet) = format.next_packet()? {
         if packet.track_id != track_id {
             continue;
         }
-        let _decoded: GenericAudioBufferRef<'_> = decoder.decode(&packet)?;
-        // decoded.spec() / decoded.capacity() are available here — see caveat below.
+
+        let decoded = decoder.decode(&packet)?;
+
+        // Define as Vec<f32> so copy_to_vec_interleaved() auto-converts to f32
+        let mut packet_samples: Vec<f32> = Vec::new();
+        decoded.copy_to_vec_interleaved(&mut packet_samples);
+
+        combined_samples.extend(packet_samples);
     }
-    Ok(())
+
+    Ok(DecodedAudio {
+        sample_rate,
+        channels,
+        samples: combined_samples,
+    })
 }
