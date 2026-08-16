@@ -55,37 +55,35 @@ pub fn read_audio_track(path: impl AsRef<Path>) -> Result<AudioTrack, AudioTrack
 
 /// Decodes the audio track identified by the struct `audio_track` and returns a single
 /// interleaved audio stream.
-pub fn decode_audio_track(audio_track: AudioTrack) -> Result<DecodedAudio, AudioTrackError> {
-    let AudioTrack { mut format, track_id } = audio_track;
+pub fn decode_audio_track(audio_track: &mut AudioTrack) -> Result<DecodedAudio, AudioTrackError> {
+    let track_id = audio_track.track_id;
 
-    let codec_params = format
+    let codec_params = audio_track
+        .format
         .tracks()
         .iter()
         .find(|t| t.id == track_id)
         .and_then(|t| t.codec_params.as_ref())
         .and_then(|cp| match cp {
-            CodecParameters::Audio(audio) => Some(audio),
+            CodecParameters::Audio(audio) => Some(audio.clone()),
             _ => None,
         })
         .ok_or(AudioTrackError::NoAudioTrack)?;
 
-    // Move these values out of codec_params to avoid double-borrowing format
     let sample_rate = codec_params.sample_rate;
     let channels = codec_params.channels.clone();
 
     let mut decoder = symphonia::default::get_codecs()
-        .make_audio_decoder(codec_params, &AudioDecoderOptions::default())?;
+        .make_audio_decoder(&codec_params, &AudioDecoderOptions::default())?;
 
     let mut combined_samples: Vec<f32> = Vec::new();
 
-    while let Some(packet) = format.next_packet()? {
+    while let Some(packet) = audio_track.format.next_packet()? {
         if packet.track_id != track_id {
             continue;
         }
 
         let decoded = decoder.decode(&packet)?;
-
-        // Define as Vec<f32> so copy_to_vec_interleaved() auto-converts to f32
         let mut packet_samples: Vec<f32> = Vec::new();
         decoded.copy_to_vec_interleaved(&mut packet_samples);
 

@@ -37,8 +37,8 @@ fn main() -> Result<(), audio_input::AudioTrackError> {
         args.output.unwrap_or("[none]".to_string())
     );
 
-    let audio_track = audio_input::read_audio_track(args.audio)?;
-    let samples = audio_input::decode_audio_track(audio_track)?;
+    let mut audio_track = audio_input::read_audio_track(args.audio)?;
+    let samples = audio_input::decode_audio_track(&mut audio_track)?;
 
     println!("Number of samples decoded: {}", samples.samples.len());
     if let Some(sample_rate) = samples.sample_rate {
