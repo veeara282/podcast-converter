@@ -1,3 +1,5 @@
+mod audio_input;
+
 use clap::Parser;
 
 /// Converts podcast audio to video
@@ -24,7 +26,7 @@ struct Args {
     height: u16,
 }
 
-fn main() {
+fn main() -> Result<(), audio_input::AudioTrackError> {
     let args = Args::parse();
 
     println!("Audio file: {}", args.audio);
@@ -34,4 +36,8 @@ fn main() {
         "Video will be written to: {}",
         args.output.unwrap_or("[none]".to_string())
     );
+
+    let audio_track = audio_input::read_audio_track(args.audio)?;
+    audio_input::decode_audio_track(audio_track)?;
+    Ok(())
 }
