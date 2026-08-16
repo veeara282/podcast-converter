@@ -11,14 +11,12 @@ pub struct AudioTrack {
     pub track_id: u32,
 }
 
-
 #[derive(Debug, Clone)]
 pub struct DecodedAudio {
     pub sample_rate: Option<u32>,
     pub channels: Option<symphonia::core::audio::Channels>,
     pub samples: Vec<f32>,
 }
-
 
 #[derive(Debug, thiserror::Error)]
 pub enum AudioTrackError {
@@ -29,7 +27,6 @@ pub enum AudioTrackError {
     #[error(transparent)]
     Symphonia(#[from] symphonia::core::errors::Error),
 }
-
 
 /// Reads the audio track in the file specified by `path` without decoding it.
 /// If `path` represents a video file, only the audio track is used.
@@ -51,7 +48,6 @@ pub fn read_audio_track(path: impl AsRef<Path>) -> Result<AudioTrack, AudioTrack
 
     Ok(AudioTrack { format, track_id })
 }
-
 
 /// Decodes the audio track identified by the struct `audio_track` and returns a single
 /// interleaved audio stream.
