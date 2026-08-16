@@ -32,7 +32,7 @@ enum ProgramError {
     #[error(transparent)]
     AudioTrackError(#[from] audio_input::AudioTrackError),
     #[error(transparent)]
-    WgpuError(#[from] audio_dsp::WgpuError),
+    DspError(#[from] audio_dsp::DspError),
 }
 
 fn main() -> Result<(), ProgramError> {
@@ -64,7 +64,8 @@ fn main() -> Result<(), ProgramError> {
         println!("Number of samples decoded: {}", num_samples);
     }
 
-    let _mel_spec = audio_dsp::mel_spectrogram_wgpu(&samples, args.frame_rate as u32, 0.25, 64)?;
+    let _spectrograms =
+        audio_dsp::generate_spectrograms(&samples, args.frame_rate as u32, 0.25, 64)?;
 
     Ok(())
 }
