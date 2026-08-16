@@ -1,3 +1,4 @@
+mod audio_dsp;
 mod audio_input;
 
 use clap::Parser;
@@ -26,7 +27,15 @@ struct Args {
     height: u16,
 }
 
-fn main() -> Result<(), audio_input::AudioTrackError> {
+#[derive(Debug, thiserror::Error)]
+enum ProgramError {
+    #[error(transparent)]
+    AudioTrackError(#[from] audio_input::AudioTrackError),
+    #[error(transparent)]
+    WgpuError(#[from] audio_dsp::WgpuError),
+}
+
+fn main() -> Result<(), ProgramError> {
     let args = Args::parse();
 
     println!("Audio file: {}", args.audio);
@@ -54,6 +63,8 @@ fn main() -> Result<(), audio_input::AudioTrackError> {
     } else {
         println!("Number of samples decoded: {}", num_samples);
     }
+
+    let _mel_spec = audio_dsp::mel_spectrogram_wgpu(&samples, args.frame_rate as u32, 0.25, 64)?;
 
     Ok(())
 }
