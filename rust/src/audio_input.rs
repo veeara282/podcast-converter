@@ -16,6 +16,30 @@ pub struct DecodedAudio {
     pub sample_rate: Option<u32>,
     pub channels: Option<symphonia::core::audio::Channels>,
     pub samples: Vec<f32>,
+    // true if the track was mixed to mono during decoding
+    pub pre_mixed: bool,
+}
+
+/// Mixes interleaved samples to mono by averaging every audio frame.
+pub fn mix_samples_to_mono(
+    samples: &[f32],
+    channels: Option<&symphonia::core::audio::Channels>,
+) -> Vec<f32> {
+    let channel_count = channels.map_or(1, |channels| channels.count());
+
+    if channel_count <= 1 {
+        return samples.to_vec();
+    }
+
+    let frame_count = samples.len() / channel_count;
+    let scale = 1.0 / channel_count as f32;
+    let mut mono_samples = Vec::with_capacity(frame_count);
+
+    for frame in samples.chunks_exact(channel_count) {
+        mono_samples.push(frame.iter().sum::<f32>() * scale);
+    }
+
+    mono_samples
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -51,7 +75,10 @@ pub fn read_audio_track(path: impl AsRef<Path>) -> Result<AudioTrack, AudioTrack
 
 /// Decodes the audio track identified by the struct `audio_track` and returns a single
 /// interleaved audio stream.
-pub fn decode_audio_track(audio_track: &mut AudioTrack) -> Result<DecodedAudio, AudioTrackError> {
+pub fn decode_audio_track(
+    audio_track: &mut AudioTrack,
+    mix_to_mono: bool,
+) -> Result<DecodedAudio, AudioTrackError> {
     let track_id = audio_track.track_id;
 
     let codec_params = audio_track
@@ -83,6 +110,10 @@ pub fn decode_audio_track(audio_track: &mut AudioTrack) -> Result<DecodedAudio, 
         let mut packet_samples: Vec<f32> = Vec::new();
         decoded.copy_to_vec_interleaved(&mut packet_samples);
 
+        if mix_to_mono {
+            packet_samples = mix_samples_to_mono(&packet_samples, channels.as_ref());
+        }
+
         combined_samples.extend(packet_samples);
     }
 
@@ -90,5 +121,6 @@ pub fn decode_audio_track(audio_track: &mut AudioTrack) -> Result<DecodedAudio, 
         sample_rate,
         channels,
         samples: combined_samples,
+        pre_mixed: mix_to_mono,
     })
 }

@@ -38,16 +38,27 @@ fn main() -> Result<(), audio_input::AudioTrackError> {
     );
 
     let mut audio_track = audio_input::read_audio_track(args.audio)?;
-    let samples = audio_input::decode_audio_track(&mut audio_track)?;
+    let samples = audio_input::decode_audio_track(&mut audio_track, false)?;
 
-    println!("Number of samples decoded: {}", samples.samples.len());
+    if let Some(channels) = samples.channels {
+        let num_samples = samples.samples.len();
+        if samples.pre_mixed {
+            let channel_count = channels.count();
+            println!("Number of samples decoded: {} (pre-mixed)", num_samples);
+            println!(
+                "Original number of samples: {}",
+                num_samples * channel_count
+            );
+        } else {
+            println!("Number of samples decoded: {}", num_samples);
+            println!("Number of channels: {}", channels.count());
+        }
+    }
+
     if let Some(sample_rate) = samples.sample_rate {
         println!("Sample rate: {} Hz", sample_rate);
     } else {
         println!("Sample rate unknown");
-    }
-    if let Some(channels) = samples.channels {
-        println!("Number of channels: {}", channels.count());
     }
     Ok(())
 }
