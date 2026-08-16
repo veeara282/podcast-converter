@@ -16,8 +16,6 @@ pub struct AudioTrack {
 pub struct DecodedAudio {
     pub samples: Vec<f32>,
     pub audio_spec: AudioSpec,
-    // true if the track was mixed to mono during decoding
-    pub pre_mixed: bool,
 }
 
 impl DecodedAudio {
@@ -28,28 +26,6 @@ impl DecodedAudio {
     pub fn channel_count(&self) -> usize {
         self.audio_spec.channels().count()
     }
-}
-
-/// Mixes interleaved samples to mono by averaging every audio frame.
-pub fn mix_samples_to_mono(
-    samples: &[f32],
-    channels: &symphonia::core::audio::Channels,
-) -> Vec<f32> {
-    let channel_count = channels.count();
-
-    if channel_count <= 1 {
-        return samples.to_vec();
-    }
-
-    let frame_count = samples.len() / channel_count;
-    let scale = 1.0 / channel_count as f32;
-    let mut mono_samples = Vec::with_capacity(frame_count);
-
-    for frame in samples.chunks_exact(channel_count) {
-        mono_samples.push(frame.iter().sum::<f32>() * scale);
-    }
-
-    mono_samples
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -89,10 +65,7 @@ pub fn read_audio_track(path: impl AsRef<Path>) -> Result<AudioTrack, AudioTrack
 
 /// Decodes the audio track identified by the struct `audio_track` and returns a single
 /// interleaved audio stream.
-pub fn decode_audio_track(
-    audio_track: &mut AudioTrack,
-    mix_to_mono: bool,
-) -> Result<DecodedAudio, AudioTrackError> {
+pub fn decode_audio_track(audio_track: &mut AudioTrack) -> Result<DecodedAudio, AudioTrackError> {
     let track_id = audio_track.track_id;
 
     let codec_params = audio_track
@@ -136,10 +109,6 @@ pub fn decode_audio_track(
         let mut packet_samples: Vec<f32> = Vec::new();
         decoded.copy_to_vec_interleaved(&mut packet_samples);
 
-        if mix_to_mono {
-            packet_samples = mix_samples_to_mono(&packet_samples, cur_spec.channels());
-        }
-
         combined_samples.extend(packet_samples);
     }
 
@@ -147,7 +116,6 @@ pub fn decode_audio_track(
         Some(spec) => Ok(DecodedAudio {
             samples: combined_samples,
             audio_spec: spec,
-            pre_mixed: mix_to_mono,
         }),
         None => Err(AudioTrackError::EmptyAudioTrack),
     }

@@ -47,22 +47,14 @@ fn main() -> Result<(), ProgramError> {
     );
 
     let mut audio_track = audio_input::read_audio_track(args.audio)?;
-    let samples = audio_input::decode_audio_track(&mut audio_track, false)?;
+    let samples = audio_input::decode_audio_track(&mut audio_track)?;
 
     println!("Sample rate: {} Hz", samples.sample_rate());
     println!("Number of channels: {}", samples.channel_count());
 
     let num_samples = samples.samples.len();
 
-    if samples.pre_mixed {
-        println!("Number of samples decoded: {} (pre-mixed)", num_samples);
-        println!(
-            "Original number of samples: {}",
-            num_samples * samples.channel_count()
-        );
-    } else {
-        println!("Number of samples decoded: {}", num_samples);
-    }
+    println!("Number of samples decoded: {}", num_samples);
 
     let _spectrograms =
         audio_dsp::generate_spectrograms(&samples, args.frame_rate as u32, 0.25, 64)?;
